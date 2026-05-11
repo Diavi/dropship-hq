@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dropship HQ — Global Marketplace Command Center</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #21253a;
+    --border: #2e3350;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --tiktok: #fe2c55;
+    --lazada: #f57224;
+    --green: #00d084;
+    --yellow: #ffd166;
+    --text: #e8eaf6;
+    --muted: #8b92b2;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* TOP NAV */
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-weight: 800; font-size: 1.2rem; color: var(--accent); letter-spacing: -0.5px; }
+  .logo span { color: var(--text); }
+  .nav-tabs { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; }
+  .nav-tab { padding: 8px 13px; border-radius: 8px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.86rem; font-weight: 500; transition: all 0.2s; white-space: nowrap; }
+  .nav-tab:hover { background: var(--card); color: var(--text); }
+  .nav-tab.active { background: var(--accent); color: #fff; }
+
+  /* LAYOUT */
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .tag-tiktok { background: rgba(254,44,85,0.15); color: var(--tiktok); }
+  .tag-lazada { background: rgba(245,114,36,0.15); color: var(--lazada); }
+  .tag-both { background: rgba(108,99,255,0.15); color: var(--accent); }
+  .tag-green { background: rgba(0,208,132,0.15); color: var(--green); }
+  .tag-yellow { background: rgba(255,209,102,0.15); color: var(--yellow); }
+
+  /* HERO */
+  .hero { text-align: center; padding: 48px 0 32px; }
+  .hero h1 { font-size: 2.2rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+  .hero h1 span { background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { color: var(--muted); font-size: 1rem; max-width: 520px; margin: 0 auto 28px; }
+  .hero-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; text-align: left; }
+  .hero-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: all 0.2s; }
+  .hero-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .hero-card .icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .hero-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .hero-card p { color: var(--muted); font-size: 0.8rem; }
+
+  /* SUPPLIER GRID */
+  .supplier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .supplier-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.2s; }
+  .supplier-card:hover { border-color: var(--accent); }
+  .supplier-card .s-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .supplier-card .s-logo { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; color: #fff; }
+  .supplier-card h3 { font-size: 0.95rem; font-weight: 700; }
+  .supplier-card .s-subtitle { font-size: 0.75rem; color: var(--muted); }
+  .supplier-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+  .pros-cons { display: flex; gap: 12px; }
+  .pros, .cons { flex: 1; }
+  .pros span, .cons span { display: block; font-size: 0.78rem; margin-bottom: 3px; }
+  .pros span::before { content: '✓ '; color: var(--green); }
+  .cons span::before { content: '✗ '; color: var(--accent2); }
+  .supplier-link { display: inline-block; margin-top: 12px; padding: 7px 14px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 600; text-decoration: none; }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; gap: 16px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; }
+  .step-content h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+  .step-content p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  .step-content ul { margin-top: 6px; padding-left: 16px; }
+  .step-content ul li { font-size: 0.82rem; color: var(--muted); margin-bottom: 3px; }
+
+  /* LISTING GENERATOR */
+  .gen-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 10px 14px; font-size: 0.88rem; outline: none; transition: border 0.2s;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn { padding: 11px 22px; border-radius: 8px; border: none; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #5a51e8; }
+  .btn-tiktok { background: var(--tiktok); color: #fff; }
+  .btn-lazada { background: var(--lazada); color: #fff; }
+  .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+  .output-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 0.85rem; line-height: 1.7; white-space: pre-wrap; min-height: 200px; color: var(--text); }
+  .output-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .output-tab { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 0.82rem; font-weight: 600; }
+  .output-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .copy-btn { float: right; margin-bottom: 8px; }
+  .quick-builder { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 18px; align-items: center; background: linear-gradient(135deg, rgba(108,99,255,0.22), rgba(0,208,132,0.10)); border: 1px solid rgba(108,99,255,0.45); }
+  .quick-builder h2 { font-size: 1.35rem; margin-bottom: 8px; }
+  .quick-builder p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+  .quick-actions { display: flex; flex-direction: column; gap: 10px; }
+  .btn-wide { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .package-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .package-pill { background: rgba(15,17,23,0.38); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 0.78rem; color: var(--muted); }
+  .package-pill strong { color: var(--text); display: block; margin-bottom: 3px; }
+  .score-ring { width: 132px; height: 132px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; background: conic-gradient(var(--accent) 0deg, var(--border) 0deg); }
+  .score-inner { width: 102px; height: 102px; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; flex-direction: column; border: 1px solid var(--border); }
+  .score-inner strong { font-size: 1.9rem; }
+  .score-inner span { color: var(--muted); font-size: 0.76rem; }
+  .analysis-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .analysis-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px; font-size: 0.82rem; line-height: 1.5; }
+  .analysis-item strong { display: block; margin-bottom: 3px; }
+  .analysis-good { border-color: rgba(0,208,132,0.45); }
+  .analysis-warn { border-color: rgba(255,209,102,0.45); }
+  .analysis-bad { border-color: rgba(255,107,107,0.45); }
+  .agent-console { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 24px; }
+  .agent-status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+  .agent-step { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 0.8rem; color: var(--muted); }
+  .agent-step strong { display: block; color: var(--text); margin-bottom: 4px; }
+  .agent-step.done { border-color: rgba(0,208,132,0.55); }
+  .agent-step.active { border-color: rgba(108,99,255,0.75); box-shadow: 0 0 0 1px rgba(108,99,255,0.25) inset; }
+  .idea-list { display: flex; flex-direction: column; gap: 12px; }
+  .idea-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.2s; }
+  .idea-card:hover, .idea-card.selected { border-color: var(--accent); transform: translateY(-1px); }
+  .idea-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
+  .idea-title { font-weight: 800; font-size: 0.92rem; }
+  .idea-score { color: var(--green); font-weight: 800; white-space: nowrap; }
+  .idea-meta { color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
+  .idea-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .market-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .market-option { display: flex; gap: 9px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 0.82rem; line-height: 1.35; cursor: pointer; }
+  .market-option input { margin-top: 2px; accent-color: var(--accent); }
+  .market-option span { color: var(--muted); display: block; font-size: 0.74rem; margin-top: 2px; }
+  .market-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+  /* RULES */
+  .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .rule-section h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .rule-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .rule-item:last-child { border-bottom: none; }
+  .rule-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .rule-item h5 { font-size: 0.83rem; font-weight: 700; margin-bottom: 2px; }
+  .rule-item p { font-size: 0.79rem; color: var(--muted); line-height: 1.5; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; margin-right: 4px; }
+  .badge-red { background: rgba(255,107,107,0.2); color: var(--accent2); }
+  .badge-green { background: rgba(0,208,132,0.2); color: var(--green); }
+
+  /* PROFIT CALC */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .result-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .result-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .result-row:last-child { border-bottom: none; font-weight: 800; font-size: 1rem; }
+  .result-row.profit { color: var(--green); }
+  .result-row.loss { color: var(--accent2); }
+  .margin-bar { height: 12px; border-radius: 6px; background: var(--border); margin: 16px 0 8px; overflow: hidden; }
+  .margin-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--accent2), var(--green)); transition: width 0.4s; }
+  .margin-label { font-size: 0.82rem; color: var(--muted); text-align: center; }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; }
+  .checklist li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.87rem; cursor: pointer; user-select: none; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li .check { width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+  .checklist li.done .check { background: var(--green); border-color: var(--green); }
+  .checklist li.done .check::after { content: '✓'; font-size: 0.75rem; color: #fff; font-weight: 800; }
+  .checklist li.done span { text-decoration: line-through; color: var(--muted); }
+
+  /* DIVIDER */
+  .section-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; margin-top: 8px; }
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  /* PRODUCT TIPS */
+  .tips-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .tip-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .tip-card .tip-icon { font-size: 1.5rem; margin-bottom: 8px; }
+  .tip-card h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; }
+  .tip-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+  @media (max-width: 768px) {
+    .hero-cards, .supplier-grid, .gen-layout, .rules-grid, .calc-grid, .tips-grid, .quick-builder, .package-grid, .agent-console, .agent-status, .market-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.5rem; }
+    .nav-tabs { gap: 2px; }
+    .nav-tab { padding: 7px 10px; font-size: 0.78rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Dropship<span>HQ</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">🏠 Home</button>
+    <button class="nav-tab" onclick="showPage('market')">🌍 Market</button>
+    <button class="nav-tab" onclick="showPage('agent')">🤖 Agent</button>
+    <button class="nav-tab" onclick="showPage('research')">🔍 Find Products</button>
+    <button class="nav-tab" onclick="showPage('analyze')">📊 Analyze</button>
+    <button class="nav-tab" onclick="showPage('listing')">✍️ Create Listing</button>
+    <button class="nav-tab" onclick="showPage('rules')">📋 Platform Rules</button>
+    <button class="nav-tab" onclick="showPage('profit')">💰 Profit Calc</button>
+    <button class="nav-tab" onclick="showPage('checklist')">✅ Checklist</button>
+  </div>
+</div>
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div id="page-home" class="page active">
+  <div class="container">
+    <div class="hero">
+      <h1>Your <span>Global Dropshipping Command Center</span></h1>
+      <p>Choose your country and selling platforms, then research, analyze, and build listings faster.</p>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card" onclick="showPage('research')">
+        <div class="icon">🔍</div>
+        <h3>Find Products</h3>
+        <p>Best supplier platforms with tips to find winners</p>
+      </div>
+      <div class="hero-card" onclick="showPage('market')">
+        <div class="icon">🌍</div>
+        <h3>Market Setup</h3>
+        <p>Choose country and platforms before building listings</p>
+      </div>
+      <div class="hero-card" onclick="showPage('agent')">
+        <div class="icon">🤖</div>
+        <h3>Agent Command</h3>
+        <p>Generate, score, shortlist, and prepare product tests</p>
+      </div>
+      <div class="hero-card" onclick="showPage('listing')">
+        <div class="icon">✍️</div>
+        <h3>Create Listing</h3>
+        <p>Generate ready-to-paste listings for both platforms</p>
+      </div>
+      <div class="hero-card" onclick="showPage('analyze')">
+        <div class="icon">📊</div>
+        <h3>Analyze Product</h3>
+        <p>Score product ideas before you spend time listing</p>
+      </div>
+      <div class="hero-card" onclick="showPage('rules')">
+        <div class="icon">📋</div>
+        <h3>Platform Rules</h3>
+        <p>All Lazada & TikTok Shop rules in one place</p>
+      </div>
+      <div class="hero-card" onclick="showPage('profit')">
+        <div class="icon">💰</div>
+        <h3>Profit Calculator</h3>
+        <p>Calculate margin before you list any product</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title">📦 Your Current Product</div>
+    <div class="card" style="border-left: 4px solid var(--accent);">
+      <div class="card-title">Power Strip — Desk Clamp with Fast Charging <span class="tag tag-both">Active</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;font-size:0.85rem;">
+        <div><div style="color:var(--muted);font-size:0.78rem;margin-bottom:4px;">PRODUCT</div>USB Power Strip w/ Fast Charge</div>
+        <div><div style="color:var(--muted);font-size:0.78rem;margin-bottom:4px;">TARGET MARKET</div><span id="home-country">Thailand</span></div>
+        <div><div style="color:var(--muted);font-size:0.78rem;margin-bottom:4px;">PLATFORMS</div><span id="home-platforms"><span class="tag tag-tiktok">TikTok Shop</span> <span class="tag tag-lazada">Lazada</span></span></div>
+        <div><div style="color:var(--muted);font-size:0.78rem;margin-bottom:4px;">ASSETS</div>6 product images ready</div>
+      </div>
+    </div>
+
+    <div class="section-title">🚀 Quick Start Steps</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Set your market first</h4><p>Go to <strong>Market</strong> → choose your selling country and platforms so the agent/listing package matches your sales channel.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Analyze the product idea</h4><p>Go to <strong>Analyze</strong> → score demand, margin, shipping, competition, and TikTok potential before spending time on the listing.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Generate your listing</h4><p>Send a strong product into <strong>Create Listing</strong> → get a ready-to-copy Lazada, TikTok, and launch package.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Upload to platforms following the rules</h4><p>Check the <strong>Platform Rules</strong> tab before uploading — images must be square (white bg for Lazada), titles have character limits, some products need approval.</p></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-content"><h4>Fulfill orders using the checklist</h4><p>When an order comes in → go to <strong>Checklist</strong> tab → follow each step so nothing gets missed.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MARKET SETUP ═══════════════ -->
+<div id="page-market" class="page">
+  <div class="container">
+    <div class="section-title">🌍 Market Setup — Country & Platforms</div>
+    <div class="gen-layout">
+      <div>
+        <div class="card">
+          <div class="card-title">🗺️ Selling Market</div>
+          <div class="form-group">
+            <label>Country You Are Selling In</label>
+            <select id="market-country" onchange="saveMarketSetup()"></select>
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <input type="text" id="market-currency" placeholder="e.g. USD, THB, GBP, EUR" value="THB" oninput="saveMarketSetup()">
+          </div>
+          <div class="form-group">
+            <label>Other / Local Platform</label>
+            <input type="text" id="market-custom-platform" placeholder="e.g. Allegro, Bol, Takealot, Noon, local marketplace" oninput="saveMarketSetup()">
+          </div>
+          <button class="btn btn-primary btn-wide" onclick="saveMarketSetup()">Save Market Setup</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">⚠️ Market Reality Check</div>
+          <div class="analysis-list">
+            <div class="analysis-item analysis-warn"><strong>Rules change by country.</strong>This dashboard gives a listing workflow and general checklist. Always confirm current local platform policies before publishing.</div>
+            <div class="analysis-item analysis-good"><strong>Use this for speed.</strong>Pick platforms here, then the agent and listing builder will format outputs around your selected channels.</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">🛒 Selling Platforms</div>
+          <div id="platform-grid" class="market-grid"></div>
+          <div class="divider"></div>
+          <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">
+            Includes major global marketplaces, regional marketplaces, social commerce, and store builders. Use the custom field for anything not listed.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">✅ Current Setup</div>
+          <div id="market-summary" class="output-box" style="min-height:150px;">Choose a country and platforms.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ AGENT COMMAND CENTER ═══════════════ -->
+<div id="page-agent" class="page">
+  <div class="container">
+    <div class="section-title">🤖 Agent Command Center — Product Test Pipeline</div>
+
+    <div class="card quick-builder">
+      <div>
+        <h2>One Button From Niche to Test-Ready Product</h2>
+        <p>Give the agent a niche or customer problem. It creates product ideas, scores them, picks the strongest tests, and lets you send any winner straight into the listing builder.</p>
+        <div class="package-grid">
+          <div class="package-pill"><strong>Find</strong>Generate product ideas</div>
+          <div class="package-pill"><strong>Filter</strong>Score margin, demand, risk</div>
+          <div class="package-pill"><strong>Prepare</strong>Send to listing package</div>
+        </div>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn-primary btn-wide" onclick="runAgentPipeline()">⚡ Run Product Agent</button>
+        <button class="btn btn-sm btn-wide" style="background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="loadAgentExample()">Load Demo Brief</button>
+        <button class="btn btn-sm btn-wide" style="background:var(--green);color:#07130e;" onclick="sendSelectedIdeaToListing()">Send Best to Listing</button>
+      </div>
+    </div>
+
+    <div class="agent-status">
+      <div id="agent-step-find" class="agent-step"><strong>1. Find</strong>Waiting for brief</div>
+      <div id="agent-step-score" class="agent-step"><strong>2. Score</strong>Not started</div>
+      <div id="agent-step-shortlist" class="agent-step"><strong>3. Shortlist</strong>Not started</div>
+      <div id="agent-step-prepare" class="agent-step"><strong>4. Prepare</strong>Pick a product</div>
+    </div>
+
+    <div class="agent-console">
+      <div>
+        <div class="card">
+          <div class="card-title">🎯 Agent Brief</div>
+          <div class="form-group">
+            <label>Niche or Customer Problem</label>
+            <input type="text" id="agent-niche" placeholder="e.g. small bedroom storage, desk setup, kitchen shortcuts">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Target Buyer</label>
+              <input type="text" id="agent-buyer" placeholder="e.g. students, condo renters, office workers">
+            </div>
+            <div class="form-group">
+              <label>Max Supplier Cost (THB)</label>
+              <input type="number" id="agent-max-cost" placeholder="e.g. 250">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Preferred Category</label>
+              <select id="agent-category">
+                <option>Any</option>
+                <option>Electronics & Gadgets</option>
+                <option>Home & Living</option>
+                <option>Office Supplies</option>
+                <option>Fashion & Accessories</option>
+                <option>Beauty & Personal Care</option>
+                <option>Sports & Outdoors</option>
+                <option>Kitchen & Dining</option>
+                <option>Baby & Kids</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Risk Appetite</label>
+              <select id="agent-risk">
+                <option value="safe">Safe products only</option>
+                <option value="balanced">Balanced</option>
+                <option value="aggressive">Aggressive testing</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>What should the agent optimize for?</label>
+            <select id="agent-goal">
+              <option value="tiktok">TikTok content potential</option>
+              <option value="margin">Highest margin</option>
+              <option value="lowrisk">Lowest fulfillment risk</option>
+              <option value="lazada">Lazada search listing</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-wide" onclick="runAgentPipeline()">⚡ Generate Product Test Queue</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🧭 Agent Notes</div>
+          <div id="agent-notes" class="output-box" style="min-height:150px;">Run the agent to get a product test plan. This local version does not browse the internet yet, so use it as a structured decision engine and validate demand manually before spending money.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">🏆 Product Test Queue</div>
+          <div id="idea-list" class="idea-list">
+            <div class="analysis-item">No ideas yet. Add a brief and run the product agent.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ RESEARCH ═══════════════ -->
+<div id="page-research" class="page">
+  <div class="container">
+    <div class="section-title">🔍 Best Supplier Platforms — Find Winning Products</div>
+
+    <div class="card" style="border-left:4px solid var(--green);">
+      <div class="card-title">💡 How to Find a Winning Product</div>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon">📈</div><h4>Check demand first</h4><p>Search the product on TikTok Thailand & Lazada. If top sellers have 100+ reviews and are "Sold Out" often — it sells.</p></div>
+        <div class="tip-card"><div class="tip-icon">💸</div><h4>2.5x rule</h4><p>Your selling price should be at least 2.5x your total cost (product + shipping). Below that, platform fees eat your profit.</p></div>
+        <div class="tip-card"><div class="tip-icon">⚡</div><h4>Fast shipping wins</h4><p>Thai buyers want 3–7 day delivery. Prioritize suppliers with Thailand warehouses or ePacket/AliExpress Standard Shipping.</p></div>
+        <div class="tip-card"><div class="tip-icon">🎯</div><h4>Problem-solving products</h4><p>Products that solve a visible problem (messy cables, charging, organization) get more TikTok views and convert better.</p></div>
+        <div class="tip-card"><div class="tip-icon">🔥</div><h4>Check TikTok trends</h4><p>Search #TikTokMadeMeBuyIt or browse TikTok Shop trending in Thailand. Find what's hot before listing.</p></div>
+        <div class="tip-card"><div class="tip-icon">🏆</div><h4>Low competition niches</h4><p>Search Lazada — if the first page has less than 50 sellers with the same product, you can compete. More = harder.</p></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:8px;">🌏 Supplier Platforms Ranked</div>
+    <div class="supplier-grid">
+
+      <div class="supplier-card">
+        <div class="s-header">
+          <div class="s-logo" style="background:#e4320c;">AE</div>
+          <div><h3>AliExpress</h3><div class="s-subtitle">Best for beginners • Ships worldwide</div></div>
+        </div>
+        <p>The easiest starting point. Order 1 item at a time, no minimum. Ships to Thailand in 7–20 days. Prices are higher than 1688 but much simpler to use.</p>
+        <div class="pros-cons">
+          <div class="pros"><span>No minimum order</span><span>Ships to Thailand</span><span>Buyer protection</span><span>English interface</span></div>
+          <div class="cons"><span>Not cheapest prices</span><span>Slow shipping</span><span>Many fake reviews</span></div>
+        </div>
+        <a href="https://www.aliexpress.com" target="_blank" class="supplier-link">Open AliExpress →</a>
+      </div>
+
+      <div class="supplier-card" style="border-color: var(--green);">
+        <div class="s-header">
+          <div class="s-logo" style="background:#ff6b00;">CJ</div>
+          <div><h3>CJDropshipping</h3><div class="s-subtitle">⭐ Best for dropshipping • Fast fulfillment</div></div>
+        </div>
+        <p>Purpose-built for dropshippers. They stock products, do custom packaging, and can ship fast. Integrates with stores but you can order manually too. Great for Thailand.</p>
+        <div class="pros-cons">
+          <div class="pros"><span>Made for dropshipping</span><span>Custom packaging</span><span>Thailand warehouse</span><span>Good prices</span></div>
+          <div class="cons"><span>Need to apply</span><span>Some MOQ</span></div>
+        </div>
+        <a href="https://www.cjdropshipping.com" target="_blank" class="supplier-link">Open CJDropshipping →</a>
+      </div>
+
+      <div class="supplier-card">
+        <div class="s-header">
+          <div class="s-logo" style="background:#1a1a2e; border: 1px solid #333;">1688</div>
+          <div><h3>1688.com</h3><div class="s-subtitle">Cheapest prices • Chinese only</div></div>
+        </div>
+        <p>Alibaba's Chinese domestic wholesale platform. Prices are 30–70% cheaper than AliExpress. You need a Chinese agent (like Yoybuy or Superbuy) to order and ship to you.</p>
+        <div class="pros-cons">
+          <div class="pros"><span>Lowest prices</span><span>Huge variety</span><span>Direct factory</span></div>
+          <div class="cons"><span>Chinese only</span><span>Need agent</span><span>Minimum orders</span><span>Complex process</span></div>
+        </div>
+        <a href="https://www.1688.com" target="_blank" class="supplier-link">Open 1688.com →</a>
+      </div>
+
+      <div class="supplier-card">
+        <div class="s-header">
+          <div class="s-logo" style="background:#ff6900;">DH</div>
+          <div><h3>DHgate</h3><div class="s-subtitle">Wholesale prices • English interface</div></div>
+        </div>
+        <p>Between AliExpress and 1688 in price and complexity. Good for ordering small batches (5–50 units). English interface, ships worldwide. Good for electronics & gadgets.</p>
+        <div class="pros-cons">
+          <div class="pros"><span>English interface</span><span>Lower than AliExpress</span><span>Small batches OK</span></div>
+          <div class="cons"><span>Quality varies</span><span>Slower support</span></div>
+        </div>
+        <a href="https://www.dhgate.com" target="_blank" class="supplier-link">Open DHgate →</a>
+      </div>
+
+      <div class="supplier-card">
+        <div class="s-header">
+          <div class="s-logo" style="background:#ff6900; background: linear-gradient(135deg,#ff6900,#000);">TB</div>
+          <div><h3>Taobao</h3><div class="s-subtitle">Consumer China shopping • Trendy items</div></div>
+        </div>
+        <p>China's largest consumer marketplace. Best place to spot trends before they hit AliExpress. Use Taobao + an agent (Superbuy, Wegobuy) to buy and ship internationally.</p>
+        <div class="pros-cons">
+          <div class="pros"><span>Trend spotting</span><span>Huge selection</span><span>Low prices</span></div>
+          <div class="cons"><span>Chinese only</span><span>Need agent</span><span>No direct ship</span></div>
+        </div>
+        <a href="https://world.taobao.com" target="_blank" class="supplier-link">Open Taobao →</a>
+      </div>
+
+      <div class="supplier-card">
+        <div class="s-header">
+          <div class="s-logo" style="background:#0050ff;">Ali</div>
+          <div><h3>Alibaba</h3><div class="s-subtitle">Bulk orders • Best unit price</div></div>
+        </div>
+        <p>For bulk orders (50+ units). Best unit prices and you can negotiate. Once you find a winning product and want to scale, move from AliExpress to Alibaba to maximize profit.</p>
+        <div class="pros-cons">
+          <div class="pros"><span>Best bulk prices</span><span>Verified suppliers</span><span>Custom branding</span></div>
+          <div class="cons"><span>High minimums</span><span>Requires investment</span></div>
+        </div>
+        <a href="https://www.alibaba.com" target="_blank" class="supplier-link">Open Alibaba →</a>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title">🔎 Product Research Step by Step</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Browse TikTok Shop Thailand for trending products</h4><p>Open TikTok app → search your niche (e.g., "desk organizer", "charging") → filter by "TikTok Shop" → look for videos with 100K+ views and a "Buy Now" button. These are proven sellers.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Check Lazada Bestsellers</h4><p>Go to Lazada Thailand → browse a category → sort by "Top Sales". Products with 500+ reviews selling at a decent price are validated. Check how many sellers sell the same thing.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Search the product on CJDropshipping or AliExpress</h4><p>Copy the product name → search on CJDropshipping first (better for dropshipping). Check price, shipping time to Thailand, and minimum order. Note your cost.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Calculate your margin</h4><p>Go to the Profit Calculator tab. If margin is 30%+ after all fees → list it. Below 20% → find a cheaper supplier or don't sell it.</p></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-content"><h4>Order a sample first (optional but recommended)</h4><p>For products over 500 THB, order 1 sample. Check quality, packaging, and actual shipping time before listing. Bad quality = bad reviews = account penalty.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PRODUCT ANALYZER ═══════════════ -->
+<div id="page-analyze" class="page">
+  <div class="container">
+    <div class="section-title">📊 Product Analyzer — Should You List It?</div>
+    <div class="gen-layout">
+      <div>
+        <div class="card">
+          <div class="card-title">🧪 Product Test</div>
+          <div class="form-group">
+            <label>Product Name or Idea</label>
+            <input type="text" id="a-name" placeholder="e.g. foldable shoe organizer, mini desk vacuum, magnetic cable holder">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="a-category">
+              <option>Electronics & Gadgets</option>
+              <option>Home & Living</option>
+              <option>Office Supplies</option>
+              <option>Fashion & Accessories</option>
+              <option>Beauty & Personal Care</option>
+              <option>Sports & Outdoors</option>
+              <option>Kitchen & Dining</option>
+              <option>Baby & Kids</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Supplier Cost (THB)</label>
+              <input type="number" id="a-cost" placeholder="e.g. 180">
+            </div>
+            <div class="form-group">
+              <label>Target Selling Price (THB)</label>
+              <input type="number" id="a-price" placeholder="e.g. 590">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Shipping Time to Thailand</label>
+              <select id="a-shipping">
+                <option value="fast">3-7 days</option>
+                <option value="ok">8-14 days</option>
+                <option value="slow">15+ days</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Competition Level</label>
+              <select id="a-competition">
+                <option value="low">Low - few sellers</option>
+                <option value="medium">Medium - some sellers</option>
+                <option value="high">High - crowded market</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Demand Signal</label>
+              <select id="a-demand">
+                <option value="strong">Strong - reviews/views/sold count</option>
+                <option value="some">Some - early signs only</option>
+                <option value="weak">Weak - not much proof yet</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>TikTok Demo Potential</label>
+              <select id="a-demo">
+                <option value="strong">Strong - visual problem/solution</option>
+                <option value="some">Some - needs creative angle</option>
+                <option value="weak">Weak - hard to show quickly</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Main Problem It Solves</label>
+            <input type="text" id="a-problem" placeholder="e.g. messy cables, small room storage, slow food prep">
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+            <button class="btn btn-primary" onclick="analyzeProduct()">📊 Analyze Product</button>
+            <button class="btn btn-sm" style="background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="fillAnalyzeExample()">Load Example</button>
+            <button class="btn btn-sm" style="background:var(--green);color:#07130e;" onclick="sendAnalysisToListing()">Send to Listing Builder</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">🎯 Product Score</div>
+          <div id="score-ring" class="score-ring">
+            <div class="score-inner"><strong id="score-value">--</strong><span>out of 100</span></div>
+          </div>
+          <div id="score-verdict" style="text-align:center;color:var(--muted);font-size:0.9rem;line-height:1.6;">Enter product details and click Analyze Product.</div>
+          <div id="analysis-list" class="analysis-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🚦Decision Rules</div>
+          <div class="analysis-list">
+            <div class="analysis-item analysis-good"><strong>75-100: List/Test</strong>Strong enough to create assets, list, and test with content.</div>
+            <div class="analysis-item analysis-warn"><strong>55-74: Improve First</strong>Fix weak price, shipping, proof, or angle before listing.</div>
+            <div class="analysis-item analysis-bad"><strong>Below 55: Skip for Now</strong>Too risky unless you have a special supplier or audience advantage.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LISTING GENERATOR ═══════════════ -->
+<div id="page-listing" class="page">
+  <div class="container">
+    <div class="section-title">✍️ Listing Generator — Lazada & TikTok Shop</div>
+    <div class="card quick-builder">
+      <div>
+        <h2>One-Button Listing Builder</h2>
+        <p>Fill the product details once, then create a complete copy-ready launch package for Lazada and TikTok Shop. It includes titles, descriptions, hashtags, image order, price guidance, and a publishing checklist.</p>
+        <div class="package-grid">
+          <div class="package-pill"><strong>Marketplace Copy</strong>Lazada + TikTok Shop text</div>
+          <div class="package-pill"><strong>Creative Plan</strong>Image order + TikTok hook</div>
+          <div class="package-pill"><strong>Launch Checks</strong>Rules and margin reminders</div>
+        </div>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn-primary btn-wide" onclick="generateListing()">⚡ Build Full Listing Package</button>
+        <button class="btn btn-sm btn-wide" style="background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="fillExample()">Load Demo Product</button>
+        <button class="btn btn-sm btn-wide" style="background:var(--green);color:#07130e;" onclick="copyAllOutputs()">Copy Full Package</button>
+      </div>
+    </div>
+    <div class="gen-layout">
+      <div>
+        <div class="card">
+          <div class="card-title">📝 Product Details</div>
+          <div class="form-group">
+            <label>Product Name (in English)</label>
+            <input type="text" id="g-name" placeholder="e.g. USB Power Strip with Fast Charging, Desk Clamp">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="g-category">
+              <option>Electronics & Gadgets</option>
+              <option>Home & Living</option>
+              <option>Office Supplies</option>
+              <option>Fashion & Accessories</option>
+              <option>Beauty & Personal Care</option>
+              <option>Sports & Outdoors</option>
+              <option>Kitchen & Dining</option>
+              <option>Baby & Kids</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Key Features (one per line)</label>
+            <textarea id="g-features" placeholder="Fast charging 18W&#10;4 USB ports + 3 AC outlets&#10;Clamps to desk edge&#10;10ft extension cord&#10;Surge protection"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Target Customer</label>
+            <input type="text" id="g-customer" placeholder="e.g. students, office workers, gamers">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Selling Price (THB)</label>
+              <input type="number" id="g-price" placeholder="e.g. 890">
+            </div>
+            <div class="form-group">
+              <label>Shipping (days to Thailand)</label>
+              <input type="text" id="g-shipping" placeholder="e.g. 7-14 days">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>What problem does it solve?</label>
+            <input type="text" id="g-problem" placeholder="e.g. messy cables and not enough outlets on your desk">
+          </div>
+          <div style="display:flex;gap:10px;margin-top:4px;">
+            <button class="btn btn-primary" onclick="generateListing()">⚡ Build Full Listing Package</button>
+            <button class="btn btn-sm" style="background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="fillExample()">Load Example</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">📋 Generated Listing</div>
+          <div class="output-tabs">
+            <button class="output-tab active" onclick="switchOutput('lazada')">🟠 Lazada</button>
+            <button class="output-tab" onclick="switchOutput('tiktok')">🔴 TikTok Shop</button>
+            <button class="output-tab" onclick="switchOutput('marketplace')">🌍 Selected Platforms</button>
+            <button class="output-tab" onclick="switchOutput('launch')">🚀 Launch Plan</button>
+          </div>
+          <button class="btn btn-sm copy-btn" onclick="copyOutput()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);">📋 Copy</button>
+          <div style="clear:both;"></div>
+          <div id="output-box" class="output-box">Fill in the form on the left and click "Generate Listings" to see your ready-to-paste listing here.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📸 Image Requirements</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+              <div style="font-size:0.82rem;font-weight:700;margin-bottom:8px;" class="tag tag-lazada">Lazada</div>
+              <div style="font-size:0.8rem;color:var(--muted);line-height:1.7;">
+                ✓ Square (1:1 ratio)<br>
+                ✓ Min 500×500px (800+ recommended)<br>
+                ✓ White background for main image<br>
+                ✓ Max 8 images<br>
+                ✓ JPG or PNG<br>
+                ✗ No watermarks or text on main image<br>
+                ✗ No borders or frames
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.82rem;font-weight:700;margin-bottom:8px;" class="tag tag-tiktok">TikTok Shop</div>
+              <div style="font-size:0.8rem;color:var(--muted);line-height:1.7;">
+                ✓ Square (1:1) or 3:4 ratio<br>
+                ✓ Min 600×600px<br>
+                ✓ Clean background<br>
+                ✓ Max 9 images<br>
+                ✓ JPG or PNG under 5MB<br>
+                ✗ No contact info in images<br>
+                ✗ No competitor logos
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ RULES ═══════════════ -->
+<div id="page-rules" class="page">
+  <div class="container">
+    <div class="section-title">📋 Platform Rules — Know Before You List</div>
+    <div class="card" style="border-left:4px solid var(--accent);">
+      <div class="card-title">🌍 Global Rule Checklist</div>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon">🧾</div><h4>Fees & Taxes</h4><p>Confirm commission, payment fees, VAT/GST/sales tax, import duties, and payout rules for your selected country.</p></div>
+        <div class="tip-card"><div class="tip-icon">🚚</div><h4>Shipping SLA</h4><p>Each platform has shipping deadlines, tracking rules, return windows, and late-shipment penalties.</p></div>
+        <div class="tip-card"><div class="tip-icon">🚫</div><h4>Restricted Products</h4><p>Check category approval, prohibited products, safety certifications, claims, age limits, and brand/IP rules before publishing.</p></div>
+      </div>
+    </div>
+    <div class="rules-grid">
+
+      <div>
+        <div class="card">
+          <div class="card-title">🟠 Lazada Thailand — Rules</div>
+          <div class="rule-section">
+            <h3>📝 Listing Rules</h3>
+            <div class="rule-item"><div class="rule-icon">📏</div><div><h5>Title Length</h5><p>Max 255 characters. Must include brand name, product type, key feature. No ALL CAPS. No promotional words like "FREE" or "SALE" in title.</p></div></div>
+            <div class="rule-item"><div class="rule-icon">📸</div><div><h5>Images</h5><p>Main image: white background, no text/watermarks, square 1:1 ratio, min 500×500px. Max 8 images total. Lifestyle photos allowed for extra images.</p></div></div>
+            <div class="rule-item"><div class="rule-icon">📄</div><div><h5>Description</h5><p>Must be accurate. Cannot claim fake "original price". Must list all specs. Thai or English both accepted. HTML formatting is supported.</p></div></div>
+            <div class="rule-item"><div class="rule-icon">💰</div><div><h5>Pricing</h5><p>Price must be realistic. Lazada takes 1–5% commission + payment processing ~2%. Vouchers are optional but recommended to boost ranking.</p></div></div>
+            <div class="rule-item"><div class="rule-icon">🚚</div><div><h5>Shipping</h5><p>Must ship within 3 business days of order. Set accurate weight and dimensions for correct shipping fees. Use Lazada-partnered couriers for best rates.</p></div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="rule-section">
+            <h3>🚫 Prohibited Items</h3>
+            <div style="font-size:0.82rem;color:var(--muted);line-height:1.9;">
+              <span class="badge badge-red">BANNED</span> Counterfeit / fake branded goods<br>
+              <span class="badge badge-red">BANNED</span> Medical devices without FDA approval<br>
+              <span class="badge badge-red">BANNED</span> Weapons, knives (any blade >10cm)<br>
+              <span class="badge badge-red">BANNED</span> Alcohol & tobacco<br>
+              <span class="badge badge-red">BANNED</span> Adult content<br>
+              <span class="badge badge-red">BANNED</span> Unlicensed software<br>
+              <span class="badge badge-green">ALLOWED</span> Electronics (need CE/FCC cert sometimes)<br>
+              <span class="badge badge-green">ALLOWED</span> Power strips (must state safety standards)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">🔴 TikTok Shop Thailand — Rules</div>
+          <div class="rule-section">
+            <h3>📝 Listing Rules</h3>
+            <div class="rule-item"><div class="rule-icon">📏</div><div><h5>Title Length</h5><p>Max 255 characters. Must be descriptive and relevant. No misleading info. Thai language preferred for Thailand market — or bilingual Thai/English.</p></div></div>
+            <div class="rule-item"><div class="rule-icon">📸</div><div><h5>Images & Video</h5><p>Min 1 image required, max 9. Video is highly recommended — products with video get 3–5x more views. Video max 60 seconds, shows product in use.</p></div></div>
+            <div class="rule-item"><div class="rule-icon">📄</div><div><h5>Description</h5><p>Must match what is shown in videos/images. Cannot make health/medical claims. No fake scarcity ("only 1 left" when it's not true). Specs must be accurate.</p></div></div>
+            <div class="rule-item"><div class="rule-icon">💰</div><div><h5>Commission & Fees</h5><p>TikTok takes 2–5% commission. Affiliate creator commissions are extra (0–30% — you set this). Free shipping threshold boosts conversion significantly.</p></div></div>
+            <div class="rule-item"><div class="rule-icon">🎯</div><div><h5>Content Policy</h5><p>Your videos cannot show competitor products. Cannot make unverified claims. Products shown in video must match exactly what is sold. No bait-and-switch.</p></div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="rule-section">
+            <h3>🚫 Prohibited Items</h3>
+            <div style="font-size:0.82rem;color:var(--muted);line-height:1.9;">
+              <span class="badge badge-red">BANNED</span> Counterfeit goods (account banned immediately)<br>
+              <span class="badge badge-red">BANNED</span> Health supplements with medical claims<br>
+              <span class="badge badge-red">BANNED</span> Political / sensitive content products<br>
+              <span class="badge badge-red">BANNED</span> Gambling-related items<br>
+              <span class="badge badge-red">BANNED</span> Firearms, weapons, explosives<br>
+              <span class="badge badge-red">BANNED</span> Items that violate Thai law<br>
+              <span class="badge badge-green">ALLOWED</span> Electronics (power strips, chargers ✓)<br>
+              <span class="badge badge-green">ALLOWED</span> Home & lifestyle products ✓
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚡ Quick Reference — Both Platforms</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;font-size:0.83rem;">
+        <div><div style="color:var(--muted);font-size:0.76rem;font-weight:700;margin-bottom:8px;">TITLE</div>Max 255 chars<br>Include key specs<br>No ALL CAPS<br>Thai/English OK</div>
+        <div><div style="color:var(--muted);font-size:0.76rem;font-weight:700;margin-bottom:8px;">IMAGES</div>Square format<br>Min 500×500px<br>White BG (main)<br>No watermarks</div>
+        <div><div style="color:var(--muted);font-size:0.76rem;font-weight:700;margin-bottom:8px;">SHIPPING</div>Ship within 3 days<br>Accurate weight<br>Lazada logistics<br>Track all orders</div>
+        <div><div style="color:var(--muted);font-size:0.76rem;font-weight:700;margin-bottom:8px;">FEES</div>Lazada: ~3–7%<br>TikTok: ~2–5%<br>Payment: ~2%<br>Factor into price</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PROFIT CALCULATOR ═══════════════ -->
+<div id="page-profit" class="page">
+  <div class="container">
+    <div class="section-title">💰 Profit Calculator</div>
+    <div class="calc-grid">
+      <div>
+        <div class="card">
+          <div class="card-title">📥 Cost Inputs</div>
+          <div class="form-group"><label>Selling Price (THB)</label><input type="number" id="c-sell" placeholder="890" oninput="calcProfit()"></div>
+          <div class="form-group"><label>Product Cost from Supplier (THB)</label><input type="number" id="c-product" placeholder="250" oninput="calcProfit()"></div>
+          <div class="form-group"><label>Shipping Cost to Buyer (THB)</label><input type="number" id="c-shipping" placeholder="50" oninput="calcProfit()"></div>
+          <div class="form-group"><label>Platform Commission % <span style="color:var(--muted);font-size:0.77rem;">(Lazada ~5%, TikTok ~4%)</span></label><input type="number" id="c-commission" placeholder="5" oninput="calcProfit()"></div>
+          <div class="form-group"><label>Payment Processing % <span style="color:var(--muted);font-size:0.77rem;">(usually ~2%)</span></label><input type="number" id="c-payment" placeholder="2" oninput="calcProfit()"></div>
+          <div class="form-group"><label>Packaging Cost (THB)</label><input type="number" id="c-packing" placeholder="20" oninput="calcProfit()"></div>
+          <div class="form-group"><label>Other Costs (THB)</label><input type="number" id="c-other" placeholder="0" oninput="calcProfit()"></div>
+          <button class="btn btn-primary" onclick="calcProfit()" style="width:100%;">Calculate Profit</button>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">📊 Result</div>
+          <div class="result-box">
+            <div class="result-row"><span>Selling Price</span><span id="r-sell">฿0</span></div>
+            <div class="result-row"><span>Product Cost</span><span id="r-product" style="color:var(--accent2);">-฿0</span></div>
+            <div class="result-row"><span>Shipping Cost</span><span id="r-shipping" style="color:var(--accent2);">-฿0</span></div>
+            <div class="result-row"><span>Platform Fee</span><span id="r-commission" style="color:var(--accent2);">-฿0</span></div>
+            <div class="result-row"><span>Payment Fee</span><span id="r-payment" style="color:var(--accent2);">-฿0</span></div>
+            <div class="result-row"><span>Packaging</span><span id="r-packing" style="color:var(--accent2);">-฿0</span></div>
+            <div class="result-row"><span>Other</span><span id="r-other" style="color:var(--accent2);">-฿0</span></div>
+            <div class="result-row" id="profit-row"><span>NET PROFIT</span><span id="r-profit">฿0</span></div>
+          </div>
+          <div class="margin-bar"><div class="margin-fill" id="margin-fill" style="width:0%;"></div></div>
+          <div class="margin-label" id="margin-label">Profit Margin: 0%</div>
+
+          <div id="profit-verdict" style="margin-top:16px;padding:14px;border-radius:8px;font-size:0.85rem;line-height:1.6;background:var(--surface);border:1px solid var(--border);">
+            Enter your numbers above to see if this product is worth selling.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📦 Pre-loaded: Power Strip Example</div>
+          <div style="font-size:0.82rem;color:var(--muted);line-height:1.8;">
+            Supplier (AliExpress): ~฿180–250<br>
+            Typical selling price: ฿650–990<br>
+            Shipping to buyer: ฿50 (if you charge) or free (you absorb)<br>
+            Lazada fee: ~5%<br>
+            <strong style="color:var(--green);">Estimated margin: 35–50% if priced at ฿890</strong>
+          </div>
+          <button class="btn btn-sm" style="margin-top:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="loadPowerStripExample()">Load Power Strip Example</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CHECKLIST ═══════════════ -->
+<div id="page-checklist" class="page">
+  <div class="container">
+    <div class="section-title">✅ Order Fulfillment Checklist</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+      <div>
+        <div class="card">
+          <div class="card-title">📦 When You Get an Order</div>
+          <ul class="checklist" id="cl-order">
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Check order details (name, address, phone number)</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Verify correct product variant (color, size, etc.)</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Note the required shipping deadline</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Check if buyer left special instructions</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Place order with your supplier (AliExpress/CJ) with BUYER'S address</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Screenshot/save the supplier order confirmation</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Note estimated arrival date from supplier</span></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🚚 Shipping & Tracking</div>
+          <ul class="checklist" id="cl-shipping">
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Get tracking number from supplier</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Enter tracking number into Lazada/TikTok platform</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Mark order as "Shipped" on the platform</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Send tracking info to buyer (if they ask)</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Monitor tracking — check if package is moving</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Follow up with supplier if no movement after 7 days</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">✍️ Before You List a New Product</div>
+          <ul class="checklist" id="cl-listing">
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Verified product demand (TikTok + Lazada search)</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Calculated profit margin (minimum 25%)</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Product is not in prohibited category</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Have minimum 4–6 quality product images</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Main image is white background, square</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Title is under 255 characters with key features</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Description includes all specs and features</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Price set correctly (covers all fees + profit)</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Shipping settings are accurate</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Verified supplier can ship to Thailand</span></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">⭐ After Delivery — Get Reviews</div>
+          <ul class="checklist" id="cl-review">
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Check tracking shows delivered</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Wait 2–3 days then message buyer to confirm receipt</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Politely ask buyer to leave a review</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Respond to any review (good or bad)</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>If bad review: message buyer, offer solution</span></li>
+            <li onclick="toggleCheck(this)"><div class="check"></div><span>Record order in your sales tracker</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:4px;">
+      <div class="card-title">💬 Message Templates</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;color:var(--muted);">ORDER CONFIRMED</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:0.8rem;line-height:1.7;color:var(--text);">
+            สวัสดีครับ/ค่ะ ขอบคุณที่สั่งซื้อสินค้า ✨ ออเดอร์ของคุณได้รับการยืนยันแล้ว จะจัดส่งภายใน 2-3 วันทำการ หากมีคำถามทักมาได้เลยนะครับ/ค่ะ
+          </div>
+          <button class="btn btn-sm" style="margin-top:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="copyMsg(this)">Copy</button>
+        </div>
+        <div>
+          <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;color:var(--muted);">TRACKING SENT</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:0.8rem;line-height:1.7;color:var(--text);">
+            สินค้าถูกจัดส่งแล้วครับ/ค่ะ 🚚 หมายเลขพัสดุ: [TRACKING] สามารถติดตามได้ที่แอปได้เลย คาดว่าจะได้รับใน 7-14 วัน
+          </div>
+          <button class="btn btn-sm" style="margin-top:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="copyMsg(this)">Copy</button>
+        </div>
+        <div>
+          <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;color:var(--muted);">ASK FOR REVIEW</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:0.8rem;line-height:1.7;color:var(--text);">
+            หวังว่าจะพอใจกับสินค้านะครับ/ค่ะ ⭐ ถ้าสะดวกรบกวนรีวิวสินค้าหน่อยได้ไหมครับ จะเป็นกำลังใจมากเลย ขอบคุณมากครับ/ค่ะ 🙏
+          </div>
+          <button class="btn btn-sm" style="margin-top:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="copyMsg(this)">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const map = {home:0,market:1,agent:2,research:3,analyze:4,listing:5,rules:6,profit:7,checklist:8};
+  if (tabs[map[id]]) tabs[map[id]].classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── MARKET SETUP ──
+const countries = [
+  'Thailand','United States','United Kingdom','Canada','Australia','New Zealand','Germany','France','Italy','Spain','Netherlands','Belgium','Sweden','Norway','Denmark','Finland','Ireland','Portugal','Poland','Czech Republic','Austria','Switzerland','Greece','Turkey','United Arab Emirates','Saudi Arabia','Qatar','Kuwait','South Africa','Nigeria','Kenya','Egypt','Morocco','India','Pakistan','Bangladesh','Sri Lanka','China','Hong Kong','Taiwan','Japan','South Korea','Singapore','Malaysia','Indonesia','Philippines','Vietnam','Cambodia','Laos','Myanmar','Brazil','Mexico','Argentina','Chile','Colombia','Peru'
+];
+
+const platformCatalog = [
+  { id:'shopify', name:'Shopify', type:'Store builder' },
+  { id:'woocommerce', name:'WooCommerce', type:'Store builder' },
+  { id:'amazon', name:'Amazon', type:'Marketplace' },
+  { id:'ebay', name:'eBay', type:'Marketplace' },
+  { id:'etsy', name:'Etsy', type:'Marketplace' },
+  { id:'walmart', name:'Walmart Marketplace', type:'Marketplace' },
+  { id:'tiktok', name:'TikTok Shop', type:'Social commerce' },
+  { id:'facebook', name:'Facebook Marketplace / Shops', type:'Social commerce' },
+  { id:'instagram', name:'Instagram Shop', type:'Social commerce' },
+  { id:'pinterest', name:'Pinterest Shopping', type:'Social commerce' },
+  { id:'lazada', name:'Lazada', type:'Southeast Asia' },
+  { id:'shopee', name:'Shopee', type:'Southeast Asia / LATAM' },
+  { id:'tokopedia', name:'Tokopedia', type:'Indonesia' },
+  { id:'mercadolibre', name:'Mercado Libre', type:'Latin America' },
+  { id:'allegro', name:'Allegro', type:'Europe' },
+  { id:'cdiscount', name:'Cdiscount', type:'France' },
+  { id:'bol', name:'Bol', type:'Netherlands / Belgium' },
+  { id:'noon', name:'Noon', type:'Middle East' },
+  { id:'jumia', name:'Jumia', type:'Africa' },
+  { id:'takealot', name:'Takealot', type:'South Africa' },
+  { id:'flipkart', name:'Flipkart', type:'India' },
+  { id:'rakuten', name:'Rakuten', type:'Japan / global' },
+  { id:'temu', name:'Temu seller/channel', type:'Marketplace' },
+  { id:'shein', name:'SHEIN Marketplace', type:'Marketplace' }
+];
+
+let marketSetup = {
+  country: 'Thailand',
+  currency: 'THB',
+  platforms: ['lazada', 'tiktok'],
+  customPlatform: ''
+};
+
+function initMarketSetup() {
+  const countrySelect = document.getElementById('market-country');
+  if (!countrySelect) return;
+  countrySelect.innerHTML = countries.map(country => `<option>${country}</option>`).join('');
+  countrySelect.value = marketSetup.country;
+  document.getElementById('platform-grid').innerHTML = platformCatalog.map(platform => `
+    <label class="market-option">
+      <input type="checkbox" value="${platform.id}" onchange="saveMarketSetup()" ${marketSetup.platforms.includes(platform.id) ? 'checked' : ''}>
+      <div>${platform.name}<span>${platform.type}</span></div>
+    </label>
+  `).join('');
+  saveMarketSetup();
+}
+
+function saveMarketSetup() {
+  const countryEl = document.getElementById('market-country');
+  const currencyEl = document.getElementById('market-currency');
+  const customEl = document.getElementById('market-custom-platform');
+  if (!countryEl || !currencyEl || !customEl) return;
+  const selected = Array.from(document.querySelectorAll('#platform-grid input:checked')).map(input => input.value);
+  marketSetup = {
+    country: countryEl.value || 'Global',
+    currency: currencyEl.value.trim() || 'USD',
+    platforms: selected.length ? selected : ['shopify'],
+    customPlatform: customEl.value.trim()
+  };
+  renderMarketSummary();
+}
+
+function getSelectedPlatformNames() {
+  const names = marketSetup.platforms.map(id => (platformCatalog.find(p => p.id === id) || {}).name).filter(Boolean);
+  if (marketSetup.customPlatform) names.push(marketSetup.customPlatform);
+  return names.length ? names : ['Shopify'];
+}
+
+function renderMarketSummary() {
+  const platformNames = getSelectedPlatformNames();
+  const summary = `COUNTRY
+${marketSetup.country}
+
+CURRENCY
+${marketSetup.currency}
+
+SELECTED PLATFORMS
+${platformNames.map(name => `- ${name}`).join('\n')}
+
+WORKFLOW IMPACT
+- Listing output will include selected platform copy.
+- Launch checklist will remind you to verify local fees, restricted categories, returns, tax/VAT, and shipping rules.
+- Product research should happen inside the selected country and platforms.`;
+  const summaryEl = document.getElementById('market-summary');
+  if (summaryEl) summaryEl.textContent = summary;
+  const homeCountry = document.getElementById('home-country');
+  if (homeCountry) homeCountry.textContent = marketSetup.country;
+  const homePlatforms = document.getElementById('home-platforms');
+  if (homePlatforms) homePlatforms.innerHTML = platformNames.slice(0, 4).map(name => `<span class="tag tag-both">${name}</span>`).join(' ');
+}
+
+// ── AGENT COMMAND CENTER ──
+let agentIdeas = [];
+let selectedIdeaIndex = 0;
+
+const productSeedBank = [
+  { name: 'Magnetic Cable Holder', category: 'Office Supplies', cost: 45, price: 199, problem: 'messy charging cables on a desk', features: ['Keeps cables within reach', 'Strong magnetic clips', 'No-drill adhesive base', 'Works for desks and nightstands'], demand: 'strong', demo: 'strong', competition: 'medium', shipping: 'fast', tags: ['desk', 'cable', 'office', 'student', 'bedroom'] },
+  { name: 'Foldable Shoe Organizer', category: 'Home & Living', cost: 160, price: 499, problem: 'messy shoes and small entryway storage', features: ['Space-saving folding design', 'Easy to clean', 'Fits small rooms', 'Quick setup'], demand: 'strong', demo: 'strong', competition: 'medium', shipping: 'ok', tags: ['storage', 'bedroom', 'condo', 'home', 'student'] },
+  { name: 'Mini Desk Vacuum Cleaner', category: 'Electronics & Gadgets', cost: 120, price: 399, problem: 'crumbs, dust, and eraser bits on desks', features: ['Compact handheld design', 'USB rechargeable', 'Good for keyboards and desks', 'Easy to empty'], demand: 'some', demo: 'strong', competition: 'medium', shipping: 'ok', tags: ['desk', 'office', 'student', 'cleaning', 'gadget'] },
+  { name: 'Under-Shelf Storage Drawer', category: 'Home & Living', cost: 80, price: 299, problem: 'wasted space under shelves and tables', features: ['Slides under shelves', 'No drilling needed', 'Great for small items', 'Space-saving design'], demand: 'strong', demo: 'strong', competition: 'low', shipping: 'fast', tags: ['storage', 'kitchen', 'bedroom', 'condo', 'home'] },
+  { name: 'Oil Spray Bottle for Cooking', category: 'Kitchen & Dining', cost: 70, price: 249, problem: 'using too much oil while cooking', features: ['Even oil spray', 'Reusable bottle', 'Easy to clean', 'Good for air fryers and pans'], demand: 'strong', demo: 'strong', competition: 'high', shipping: 'fast', tags: ['kitchen', 'cooking', 'food', 'home'] },
+  { name: 'Portable Lint Remover', category: 'Fashion & Accessories', cost: 95, price: 349, problem: 'lint and fuzz on clothes before going out', features: ['Portable size', 'Easy daily use', 'Works on clothes and sofas', 'Rechargeable design'], demand: 'some', demo: 'strong', competition: 'medium', shipping: 'ok', tags: ['fashion', 'clothes', 'home', 'student'] },
+  { name: 'Rotating Makeup Organizer', category: 'Beauty & Personal Care', cost: 180, price: 599, problem: 'messy makeup and skincare bottles', features: ['360-degree rotating storage', 'Adjustable shelves', 'Keeps vanity organized', 'Good gift idea'], demand: 'strong', demo: 'some', competition: 'medium', shipping: 'ok', tags: ['beauty', 'storage', 'bedroom', 'gift'] },
+  { name: 'Resistance Band Door Anchor Set', category: 'Sports & Outdoors', cost: 130, price: 449, problem: 'needing simple home workouts without bulky equipment', features: ['Compact workout set', 'Good for home training', 'Easy to carry', 'Multiple exercise options'], demand: 'some', demo: 'strong', competition: 'medium', shipping: 'fast', tags: ['fitness', 'home', 'sports', 'small room'] },
+  { name: 'Clip-On Reading Light', category: 'Electronics & Gadgets', cost: 85, price: 299, problem: 'poor lighting while reading or studying at night', features: ['Clip-on design', 'USB rechargeable', 'Adjustable brightness', 'Portable for desk or bed'], demand: 'some', demo: 'some', competition: 'medium', shipping: 'fast', tags: ['student', 'bedroom', 'desk', 'lighting'] },
+  { name: 'Drawer Divider Set', category: 'Home & Living', cost: 90, price: 329, problem: 'messy drawers and hard-to-find small items', features: ['Adjustable compartments', 'Easy to install', 'Keeps drawers neat', 'Works for clothes, makeup, and tools'], demand: 'strong', demo: 'strong', competition: 'low', shipping: 'fast', tags: ['storage', 'home', 'bedroom', 'organizer'] },
+  { name: 'Silicone Sink Splash Guard', category: 'Kitchen & Dining', cost: 55, price: 219, problem: 'water splashing around the sink', features: ['Flexible silicone design', 'Easy to clean', 'Fits most faucets', 'Keeps counter dry'], demand: 'some', demo: 'strong', competition: 'low', shipping: 'fast', tags: ['kitchen', 'cleaning', 'home', 'problem'] },
+  { name: 'Car Seat Gap Organizer', category: 'Home & Living', cost: 150, price: 499, problem: 'phones and coins falling between car seats', features: ['Fills seat gap', 'Extra storage pockets', 'Easy to install', 'Keeps car cleaner'], demand: 'some', demo: 'strong', competition: 'medium', shipping: 'ok', tags: ['car', 'storage', 'organizer', 'problem'] }
+];
+
+function loadAgentExample() {
+  document.getElementById('agent-niche').value = 'small bedroom storage and desk setup';
+  document.getElementById('agent-buyer').value = 'students and condo renters';
+  document.getElementById('agent-max-cost').value = 220;
+  document.getElementById('agent-category').value = 'Any';
+  document.getElementById('agent-risk').value = 'balanced';
+  document.getElementById('agent-goal').value = 'tiktok';
+  runAgentPipeline();
+}
+
+function runAgentPipeline() {
+  const niche = String(document.getElementById('agent-niche').value).trim() || 'daily problem-solving products';
+  const buyer = String(document.getElementById('agent-buyer').value).trim() || 'online shoppers in Thailand';
+  const maxCost = parseFloat(document.getElementById('agent-max-cost').value) || 300;
+  const category = document.getElementById('agent-category').value;
+  const risk = document.getElementById('agent-risk').value;
+  const goal = document.getElementById('agent-goal').value;
+
+  setAgentStep('find', 'active', 'Scanning seed ideas');
+  const matched = productSeedBank
+    .filter(item => category === 'Any' || item.category === category)
+    .filter(item => risk !== 'safe' || !['Beauty & Personal Care', 'Baby & Kids'].includes(item.category))
+    .map(item => buildAgentIdea(item, niche, buyer, maxCost, goal, risk))
+    .filter(item => item.cost <= maxCost || item.matchScore >= 2)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6);
+
+  agentIdeas = matched.length ? matched : productSeedBank.slice(0, 6).map(item => buildAgentIdea(item, niche, buyer, maxCost, goal, risk)).sort((a, b) => b.score - a.score);
+  selectedIdeaIndex = 0;
+
+  setAgentStep('find', 'done', `${agentIdeas.length} candidates found`);
+  setAgentStep('score', 'done', 'Scored by margin/risk/demand');
+  setAgentStep('shortlist', 'done', `Best score: ${agentIdeas[0].score}/100`);
+  setAgentStep('prepare', 'active', 'Select or send winner');
+  renderAgentIdeas();
+  renderAgentNotes(niche, buyer, maxCost, goal);
+}
+
+function buildAgentIdea(seed, niche, buyer, maxCost, goal, risk) {
+  const matchScore = getTextMatchScore(seed, `${niche} ${buyer}`);
+  const base = scoreSeedIdea(seed);
+  const costBonus = seed.cost <= maxCost ? 8 : -6;
+  const goalBonus = getGoalBonus(seed, goal);
+  const riskPenalty = getRiskPenalty(seed, risk);
+  const score = Math.max(0, Math.min(100, Math.round(base + matchScore * 4 + costBonus + goalBonus - riskPenalty)));
+  const margin = ((seed.price - seed.cost - seed.price * 0.08 - Math.max(20, seed.price * 0.03)) / seed.price) * 100;
+  return { ...seed, buyer, score, margin, matchScore };
+}
+
+function scoreSeedIdea(seed) {
+  let score = 28;
+  score += scoreFromValue(seed.shipping, { fast: 18, ok: 12, slow: 4 });
+  score += scoreFromValue(seed.competition, { low: 16, medium: 10, high: 3 });
+  score += scoreFromValue(seed.demand, { strong: 20, some: 12, weak: 3 });
+  score += scoreFromValue(seed.demo, { strong: 18, some: 10, weak: 3 });
+  score += categoryRiskAdjustment(seed.category, seed.name);
+  return score;
+}
+
+function getTextMatchScore(seed, text) {
+  const lower = text.toLowerCase();
+  return seed.tags.reduce((sum, tag) => sum + (lower.includes(tag) ? 1 : 0), 0);
+}
+
+function getGoalBonus(seed, goal) {
+  if (goal === 'tiktok' && seed.demo === 'strong') return 8;
+  if (goal === 'margin' && seed.price / seed.cost >= 3) return 8;
+  if (goal === 'lowrisk' && seed.shipping === 'fast' && seed.competition !== 'high') return 8;
+  if (goal === 'lazada' && seed.demand === 'strong' && seed.competition !== 'high') return 8;
+  return 0;
+}
+
+function getRiskPenalty(seed, risk) {
+  const riskyCategory = ['Beauty & Personal Care', 'Baby & Kids'].includes(seed.category);
+  const electrical = seed.category === 'Electronics & Gadgets';
+  if (risk === 'safe' && riskyCategory) return 14;
+  if (risk === 'safe' && electrical) return 6;
+  if (risk === 'aggressive') return 0;
+  return riskyCategory ? 6 : 0;
+}
+
+function renderAgentIdeas() {
+  const list = document.getElementById('idea-list');
+  list.innerHTML = agentIdeas.map((idea, index) => {
+    const status = idea.score >= 75 ? 'List/Test' : idea.score >= 55 ? 'Improve First' : 'Skip';
+    const selected = index === selectedIdeaIndex ? ' selected' : '';
+    return `<div class="idea-card${selected}" onclick="selectAgentIdea(${index})">
+      <div class="idea-top">
+        <div>
+          <div class="idea-title">${idea.name}</div>
+          <div class="idea-meta">${idea.category} • Cost ฿${idea.cost} • Sell ฿${idea.price} • Margin ${idea.margin.toFixed(1)}%</div>
+        </div>
+        <div class="idea-score">${idea.score}/100</div>
+      </div>
+      <div class="idea-meta">Problem: ${idea.problem}<br>Verdict: ${status} • Demand: ${idea.demand} • Demo: ${idea.demo} • Competition: ${idea.competition}</div>
+      <div class="idea-actions">
+        <button class="btn btn-sm" style="background:var(--surface);border:1px solid var(--border);color:var(--text);" onclick="event.stopPropagation(); selectAgentIdea(${index}); sendSelectedIdeaToAnalyze();">Analyze</button>
+        <button class="btn btn-sm" style="background:var(--green);color:#07130e;" onclick="event.stopPropagation(); selectAgentIdea(${index}); sendSelectedIdeaToListing();">Build Listing</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAgentNotes(niche, buyer, maxCost, goal) {
+  const best = agentIdeas[0];
+  const nextTwo = agentIdeas.slice(1, 3).map(i => `- ${i.name} (${i.score}/100)`).join('\n');
+  document.getElementById('agent-notes').textContent = `AGENT RUN SUMMARY
+
+Brief: ${niche}
+Buyer: ${buyer}
+Max supplier cost: ฿${maxCost}
+Optimization: ${goal}
+
+Best test:
+${best.name} (${best.score}/100)
+
+Why this is first:
+- Clear problem: ${best.problem}
+- Estimated margin: ${best.margin.toFixed(1)}%
+- TikTok demo potential: ${best.demo}
+- Competition level: ${best.competition}
+
+Next two tests:
+${nextTwo || '- Not enough strong alternates'}
+
+Human check before spending money:
+- Search Lazada for seller count and prices
+- Search TikTok for real video demand
+- Confirm supplier photos, reviews, variants, and shipping time
+- Order a sample if quality or sizing could cause refunds`;
+}
+
+function selectAgentIdea(index) {
+  selectedIdeaIndex = index;
+  renderAgentIdeas();
+  setAgentStep('prepare', 'active', `${agentIdeas[index].name} selected`);
+}
+
+function sendSelectedIdeaToAnalyze() {
+  const idea = agentIdeas[selectedIdeaIndex];
+  if (!idea) return;
+  document.getElementById('a-name').value = idea.name;
+  document.getElementById('a-category').value = idea.category;
+  document.getElementById('a-cost').value = idea.cost;
+  document.getElementById('a-price').value = idea.price;
+  document.getElementById('a-shipping').value = idea.shipping;
+  document.getElementById('a-competition').value = idea.competition;
+  document.getElementById('a-demand').value = idea.demand;
+  document.getElementById('a-demo').value = idea.demo;
+  document.getElementById('a-problem').value = idea.problem;
+  showPage('analyze');
+  analyzeProduct();
+}
+
+function sendSelectedIdeaToListing() {
+  if (!agentIdeas.length) runAgentPipeline();
+  const idea = agentIdeas[selectedIdeaIndex];
+  if (!idea) return;
+  document.getElementById('g-name').value = idea.name;
+  document.getElementById('g-category').value = idea.category;
+  document.getElementById('g-features').value = idea.features.join('\n');
+  document.getElementById('g-customer').value = idea.buyer || getCustomerSuggestion(idea.category);
+  document.getElementById('g-price').value = idea.price;
+  document.getElementById('g-shipping').value = idea.shipping === 'fast' ? '3-7 days' : idea.shipping === 'ok' ? '8-14 days' : '15+ days';
+  document.getElementById('g-problem').value = idea.problem;
+  setAgentStep('prepare', 'done', 'Listing package ready');
+  showPage('listing');
+  generateListing();
+}
+
+function setAgentStep(step, state, text) {
+  const el = document.getElementById(`agent-step-${step}`);
+  if (!el) return;
+  el.classList.remove('active', 'done');
+  if (state) el.classList.add(state);
+  const label = el.querySelector('strong') ? el.querySelector('strong').textContent : '';
+  el.innerHTML = `<strong>${label}</strong>${text}`;
+}
+
+// ── PRODUCT ANALYZER ──
+let lastAnalysis = null;
+
+function fillAnalyzeExample() {
+  document.getElementById('a-name').value = 'Foldable Shoe Organizer';
+  document.getElementById('a-category').value = 'Home & Living';
+  document.getElementById('a-cost').value = 160;
+  document.getElementById('a-price').value = 499;
+  document.getElementById('a-shipping').value = 'ok';
+  document.getElementById('a-competition').value = 'medium';
+  document.getElementById('a-demand').value = 'strong';
+  document.getElementById('a-demo').value = 'strong';
+  document.getElementById('a-problem').value = 'messy shoes and small entryway storage';
+  analyzeProduct();
+}
+
+function analyzeProduct() {
+  const name = document.getElementById('a-name').value.trim() || 'Product idea';
+  const category = document.getElementById('a-category').value;
+  const cost = parseFloat(document.getElementById('a-cost').value) || 0;
+  const price = parseFloat(document.getElementById('a-price').value) || 0;
+  const shipping = document.getElementById('a-shipping').value;
+  const competition = document.getElementById('a-competition').value;
+  const demand = document.getElementById('a-demand').value;
+  const demo = document.getElementById('a-demo').value;
+  const problem = document.getElementById('a-problem').value.trim() || 'a clear customer problem';
+
+  const estimatedFees = price * 0.08;
+  const buffer = Math.max(20, price * 0.03);
+  const estimatedProfit = price - cost - estimatedFees - buffer;
+  const margin = price > 0 ? estimatedProfit / price * 100 : 0;
+  const markup = cost > 0 ? price / cost : 0;
+
+  let score = 0;
+  score += scoreMargin(margin, markup);
+  score += scoreFromValue(shipping, { fast: 20, ok: 14, slow: 6 });
+  score += scoreFromValue(competition, { low: 18, medium: 12, high: 5 });
+  score += scoreFromValue(demand, { strong: 22, some: 13, weak: 4 });
+  score += scoreFromValue(demo, { strong: 18, some: 10, weak: 3 });
+  score += categoryRiskAdjustment(category, name);
+  score = Math.max(0, Math.min(100, Math.round(score)));
+
+  const verdict = getAnalysisVerdict(score);
+  const color = score >= 75 ? 'var(--green)' : score >= 55 ? 'var(--yellow)' : 'var(--accent2)';
+  document.getElementById('score-value').textContent = score;
+  document.getElementById('score-ring').style.background = `conic-gradient(${color} ${score * 3.6}deg, var(--border) 0deg)`;
+  document.getElementById('score-verdict').innerHTML = `<strong style="color:${color};">${verdict.title}</strong><br>${verdict.detail}`;
+
+  const notes = buildAnalysisNotes({ name, category, cost, price, shipping, competition, demand, demo, problem, margin, markup, estimatedProfit });
+  document.getElementById('analysis-list').innerHTML = notes.map(note => `<div class="analysis-item ${note.className}"><strong>${note.title}</strong>${note.body}</div>`).join('');
+
+  lastAnalysis = { name, category, price, shipping, problem, margin, score };
+}
+
+function scoreFromValue(value, map) {
+  return map[value] || 0;
+}
+
+function scoreMargin(margin, markup) {
+  if (margin >= 35 && markup >= 2.5) return 22;
+  if (margin >= 25 && markup >= 2) return 16;
+  if (margin >= 15) return 9;
+  if (margin > 0) return 4;
+  return 0;
+}
+
+function categoryRiskAdjustment(category, name) {
+  const lower = `${category} ${name}`.toLowerCase();
+  if (lower.includes('baby') || lower.includes('health') || lower.includes('skin')) return -8;
+  if (lower.includes('electronics') || lower.includes('power') || lower.includes('charger')) return -4;
+  return 0;
+}
+
+function getAnalysisVerdict(score) {
+  if (score >= 75) return { title: 'Good test candidate', detail: 'This is strong enough to move into listing and content testing.' };
+  if (score >= 55) return { title: 'Promising, but fix weak spots', detail: 'Improve the price, shipping, demand proof, or content angle before listing.' };
+  return { title: 'Skip or research more', detail: 'This has too much risk right now unless you have a supplier or audience advantage.' };
+}
+
+function buildAnalysisNotes(data) {
+  const notes = [];
+  const marginClass = data.margin >= 25 ? 'analysis-good' : data.margin >= 15 ? 'analysis-warn' : 'analysis-bad';
+  notes.push({
+    className: marginClass,
+    title: `Margin: ${data.margin.toFixed(1)}%`,
+    body: data.price ? `Estimated profit is about ฿${data.estimatedProfit.toFixed(0)} after an 8% fee estimate and small buffer.` : 'Add a target selling price to calculate margin.'
+  });
+  notes.push({
+    className: data.demand === 'strong' ? 'analysis-good' : data.demand === 'some' ? 'analysis-warn' : 'analysis-bad',
+    title: 'Demand Signal',
+    body: data.demand === 'strong' ? 'You have signs people already want this. Good.' : data.demand === 'some' ? 'There is some proof, but check reviews, sold counts, and TikTok views before committing.' : 'Weak proof. Find validation before listing.'
+  });
+  notes.push({
+    className: data.demo === 'strong' ? 'analysis-good' : data.demo === 'some' ? 'analysis-warn' : 'analysis-bad',
+    title: 'TikTok Angle',
+    body: data.demo === 'strong' ? `Lead with the problem: "${data.problem}". Show before/after quickly.` : data.demo === 'some' ? 'You need a sharper hook or visual demo to make content work.' : 'Hard to demo means harder to sell through TikTok content.'
+  });
+  notes.push({
+    className: data.shipping === 'fast' ? 'analysis-good' : data.shipping === 'ok' ? 'analysis-warn' : 'analysis-bad',
+    title: 'Shipping',
+    body: data.shipping === 'fast' ? 'Fast enough for Thai buyers.' : data.shipping === 'ok' ? 'Acceptable, but set expectations clearly.' : 'Slow shipping can cause cancellations and bad reviews.'
+  });
+  notes.push({
+    className: data.competition === 'low' ? 'analysis-good' : data.competition === 'medium' ? 'analysis-warn' : 'analysis-bad',
+    title: 'Competition',
+    body: data.competition === 'low' ? 'Room to enter if the listing looks polished.' : data.competition === 'medium' ? 'You need better images, copy, or price to stand out.' : 'Crowded market. Only list if you have a better angle, bundle, or supplier price.'
+  });
+  return notes;
+}
+
+function sendAnalysisToListing() {
+  if (!lastAnalysis) analyzeProduct();
+  if (!lastAnalysis) return;
+  document.getElementById('g-name').value = lastAnalysis.name;
+  document.getElementById('g-category').value = lastAnalysis.category;
+  document.getElementById('g-price').value = lastAnalysis.price || '';
+  document.getElementById('g-problem').value = lastAnalysis.problem;
+  document.getElementById('g-shipping').value = document.getElementById('a-shipping').selectedOptions[0].textContent;
+  document.getElementById('g-customer').value = getCustomerSuggestion(lastAnalysis.category);
+  document.getElementById('g-features').value = getFeatureSuggestions(lastAnalysis.category);
+  showPage('listing');
+  generateListing();
+}
+
+function getCustomerSuggestion(category) {
+  const map = {
+    'Electronics & Gadgets': 'students, office workers, gamers, tech buyers',
+    'Home & Living': 'condo renters, students, families, small-space owners',
+    'Office Supplies': 'remote workers, office workers, students',
+    'Fashion & Accessories': 'style-conscious shoppers and gift buyers',
+    'Beauty & Personal Care': 'beauty shoppers and daily self-care buyers',
+    'Sports & Outdoors': 'fitness beginners and active lifestyle buyers',
+    'Kitchen & Dining': 'home cooks, condo renters, busy families',
+    'Baby & Kids': 'parents and gift buyers'
+  };
+  return map[category] || 'everyday online shoppers';
+}
+
+function getFeatureSuggestions(category) {
+  const map = {
+    'Electronics & Gadgets': 'Easy to use\nCompact design\nUseful for daily setup\nGood value for the price',
+    'Home & Living': 'Space-saving design\nEasy to clean\nSimple setup\nUseful for small rooms',
+    'Office Supplies': 'Keeps workspace organized\nLightweight and practical\nUseful for daily work\nGood for students and offices',
+    'Fashion & Accessories': 'Stylish everyday design\nEasy to match\nComfortable to use\nGood gift idea',
+    'Beauty & Personal Care': 'Easy daily routine\nPortable design\nGentle everyday use\nGood value set',
+    'Sports & Outdoors': 'Lightweight design\nEasy to carry\nUseful for training or travel\nDurable daily-use build',
+    'Kitchen & Dining': 'Saves prep time\nEasy to clean\nCompact storage\nUseful for daily cooking',
+    'Baby & Kids': 'Practical for parents\nEasy to use\nSimple storage\nUseful daily item'
+  };
+  return map[category] || 'Practical daily-use design\nEasy to use\nGood value for the price\nSolves a clear problem';
+}
+
+// ── LISTING GENERATOR ──
+let currentOutput = { lazada: '', tiktok: '', marketplace: '', launch: '' };
+let activeOutput = 'lazada';
+
+function fillExample() {
+  document.getElementById('g-name').value = 'USB Power Strip Desk Clamp with Fast Charging 18W';
+  document.getElementById('g-category').value = 'Electronics & Gadgets';
+  document.getElementById('g-features').value = 'Fast charging 18W QC3.0\n4 USB ports + 3 AC outlets\nClamps to desk edge (no drilling)\n10ft / 3m braided extension cord\nSurge protection 1080J\nCompact & space-saving design';
+  document.getElementById('g-customer').value = 'students, remote workers, gamers, office workers';
+  document.getElementById('g-price').value = '890';
+  document.getElementById('g-shipping').value = '7-14 days';
+  document.getElementById('g-problem').value = 'not enough outlets and messy cables on your desk';
+  generateListing();
+}
+
+function generateListing() {
+  saveMarketSetup();
+  const name = String(document.getElementById('g-name').value).trim() || 'Product';
+  const cat = document.getElementById('g-category').value;
+  const featuresRaw = document.getElementById('g-features').value;
+  const customer = String(document.getElementById('g-customer').value).trim() || 'everyday buyers';
+  const price = String(document.getElementById('g-price').value).trim();
+  const shipping = String(document.getElementById('g-shipping').value).trim() || '7-14 days';
+  const problem = String(document.getElementById('g-problem').value).trim() || 'an everyday problem';
+  const priceLine = price ? `฿${price}` : 'set after margin check';
+
+  const features = featuresRaw.split('\n').filter(f => f.trim()).map(f => f.trim());
+  const safeFeatures = features.length ? features : ['Practical daily-use design', 'Easy to use', 'Good value for the price'];
+  const featuresBullet = safeFeatures.map(f => `✅ ${f}`).join('\n');
+  const featuresShort = safeFeatures.slice(0, 3).join(' | ');
+  const primaryFeature = safeFeatures[0];
+  const cleanHash = name.replace(/[^a-zA-Z0-9ก-๙]/g,'').substring(0,20) || 'สินค้าแนะนำ';
+  const categoryHash = cat.replace(/[^a-zA-Z0-9ก-๙]/g,'');
+  const riskNotes = getRiskNotes(cat, name, safeFeatures);
+  const platformNames = getSelectedPlatformNames();
+  const marketHeader = `Market: ${marketSetup.country}\nCurrency: ${marketSetup.currency}\nPlatforms: ${platformNames.join(', ')}`;
+
+  // LAZADA listing
+  const lazTitle = `${name} | ${featuresShort}`.substring(0, 255);
+  const lazDesc = `🔥 ${name}
+
+ช่วยแก้ปัญหา: ${problem}
+
+━━━━━━━━━━━━━━━━━━━━━━
+✨ คุณสมบัติเด่น (KEY FEATURES)
+━━━━━━━━━━━━━━━━━━━━━━
+${featuresBullet}
+
+━━━━━━━━━━━━━━━━━━━━━━
+👥 เหมาะสำหรับ (IDEAL FOR)
+━━━━━━━━━━━━━━━━━━━━━━
+✅ ${customer}
+✅ ทุกคนที่ต้องการความสะดวกสบายมากขึ้น
+
+━━━━━━━━━━━━━━━━━━━━━━
+💰 ราคา (PRICE)
+━━━━━━━━━━━━━━━━━━━━━━
+${priceLine}
+
+━━━━━━━━━━━━━━━━━━━━━━
+📦 การจัดส่ง (SHIPPING)
+━━━━━━━━━━━━━━━━━━━━━━
+🚚 จัดส่งภายใน 1-3 วันทำการ
+📬 ได้รับสินค้าภายใน ${shipping}
+✅ มีระบบติดตามพัสดุ
+
+━━━━━━━━━━━━━━━━━━━━━━
+💬 รับประกันความพึงพอใจ
+━━━━━━━━━━━━━━━━━━━━━━
+หากมีปัญหาใดๆ ติดต่อแชทได้เลยครับ/ค่ะ ยินดีแก้ไขและช่วยเหลือทุกกรณี ⭐`;
+
+  // TIKTOK listing
+  const tikTitle = `${name} | ${primaryFeature} | ${priceLine}`.substring(0, 255);
+  const tikDesc = `🔥 ${name}
+
+ปัญหาที่แก้ให้คุณ: ${problem}
+
+${featuresBullet}
+
+💥 ราคา ${priceLine}
+🚚 จัดส่งทั่วไทย ${shipping}
+✅ มีรีวิวจริง ไม่มีโกง
+📦 แพ็คอย่างดี ส่งเร็ว
+
+👉 กดซื้อได้เลย หรือทักถามก่อนได้นะคะ!
+
+#${cleanHash} #ของดีราคาถูก #TikTokShopThailand #ช้อปดีมีคุณภาพ #${categoryHash}`;
+
+  const marketplacePack = platformNames.map(platform => buildPlatformListing(platform, { name, cat, safeFeatures, featuresBullet, customer, priceLine, shipping, problem, cleanHash, categoryHash })).join('\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n');
+
+  const launchPlan = `ONE-BUTTON LAUNCH PACKAGE
+
+${marketHeader}
+
+PRODUCT
+${name}
+
+POSITIONING
+Sell this as a simple solution for ${customer} who struggle with ${problem}.
+
+PRICE CHECK
+Recommended list price: ${priceLine}
+Before publishing, confirm profit margin is at least 25-30% after product cost, shipping, platform commission, payment fee, packaging, and returns buffer.
+
+IMAGE ORDER
+1. Main image: clean product photo, square, no text, no watermark
+2. Problem/solution image: show the product solving "${problem}"
+3. Feature image: highlight ${primaryFeature}
+4. Lifestyle image: product in a real use case for ${customer}
+5. Specs image: size, materials, compatibility, what is included
+6. Trust image: packaging, warranty/support, shipping note
+
+TIKTOK VIDEO HOOKS
+1. "If you deal with ${problem}, this is for you."
+2. "I did not know I needed this until I tried it."
+3. "Small upgrade, big difference for ${customer}."
+
+PUBLISHING CHECKLIST
+□ Title is under 255 characters
+□ Main image is square and clean
+□ No fake discount or unsupported claims
+□ Specs match the exact supplier product
+□ Shipping time says ${shipping}
+□ Variants, color, size, and package contents are clear
+□ Profit calculator shows healthy margin
+□ Check ${marketSetup.country} tax/VAT/import duties and consumer return rules
+□ Confirm each selected platform allows this category in ${marketSetup.country}
+□ Verify fees, shipping SLA, return window, restricted claims, and image rules directly inside seller center
+${riskNotes}`;
+
+  currentOutput = {
+    lazada: `TITLE:\n${lazTitle}\n\nDESCRIPTION:\n${lazDesc}`,
+    tiktok: `TITLE:\n${tikTitle}\n\nDESCRIPTION:\n${tikDesc}`,
+    marketplace: marketplacePack,
+    launch: launchPlan
+  };
+  document.getElementById('output-box').textContent = currentOutput[activeOutput];
+}
+
+function switchOutput(platform) {
+  activeOutput = platform;
+  document.querySelectorAll('.output-tab').forEach(t => t.classList.remove('active'));
+  const clickEvent = window.event;
+  if (clickEvent && clickEvent.target) clickEvent.target.classList.add('active');
+  document.getElementById('output-box').textContent = currentOutput[platform] || 'Generate a listing first.';
+}
+
+function copyOutput() {
+  const text = document.getElementById('output-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy', 2000);
+  });
+}
+
+function copyAllOutputs() {
+  if (!currentOutput.lazada && !currentOutput.tiktok && !currentOutput.marketplace && !currentOutput.launch) {
+    generateListing();
+  }
+  const text = `LAZADA\n${currentOutput.lazada}\n\n\nTIKTOK SHOP\n${currentOutput.tiktok}\n\n\nSELECTED PLATFORMS\n${currentOutput.marketplace}\n\n\nLAUNCH PLAN\n${currentOutput.launch}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = window.event && window.event.target;
+    if (btn) {
+      btn.textContent = '✓ Full Package Copied';
+      setTimeout(() => btn.textContent = 'Copy Full Package', 2000);
+    }
+  });
+}
+
+function buildPlatformListing(platform, data) {
+  const isSocial = /TikTok|Instagram|Facebook|Pinterest/i.test(platform);
+  const isStore = /Shopify|WooCommerce/i.test(platform);
+  const titleLimit = getPlatformTitleLimit(platform);
+  const title = `${data.name} | ${data.safeFeatures.slice(0, 2).join(' | ')}`.substring(0, titleLimit);
+  const bullets = data.safeFeatures.map(feature => `- ${feature}`).join('\n');
+  const callToAction = isSocial ? 'Tap to order or message us with questions.' : isStore ? 'Add to cart and choose your preferred delivery option at checkout.' : 'Order now while stock is available.';
+  const platformNote = getPlatformNote(platform);
+  return `${platform.toUpperCase()}
+
+TITLE
+${title}
+
+SHORT DESCRIPTION
+${data.name} helps ${data.customer} solve ${data.problem}. ${data.safeFeatures[0]} with practical daily-use value.
+
+BULLETS
+${bullets}
+
+PRICE
+${data.priceLine}
+
+SHIPPING
+Ships to ${marketSetup.country}. Estimated delivery: ${data.shipping}.
+
+CALL TO ACTION
+${callToAction}
+
+HASHTAGS / SEARCH TERMS
+#${data.cleanHash} #${data.categoryHash} #OnlineShopping #${marketSetup.country.replace(/\s+/g,'')}
+
+PLATFORM CHECK
+${platformNote}`;
+}
+
+function getPlatformTitleLimit(platform) {
+  if (/Amazon/i.test(platform)) return 200;
+  if (/eBay/i.test(platform)) return 80;
+  if (/Etsy/i.test(platform)) return 140;
+  return 255;
+}
+
+function getPlatformNote(platform) {
+  if (/Amazon/i.test(platform)) return 'Verify category approval, variation rules, image requirements, and FBA/FBM shipping settings.';
+  if (/eBay/i.test(platform)) return 'Keep title keyword-focused, set item condition clearly, and confirm return policy.';
+  if (/Etsy/i.test(platform)) return 'Only list if the product fits Etsy policies; avoid mass-market claims if not handmade/vintage/supply.';
+  if (/TikTok/i.test(platform)) return 'Use a short demo video hook, avoid unsupported claims, and confirm category eligibility in seller center.';
+  if (/Shopify|WooCommerce/i.test(platform)) return 'Add trust pages: shipping, returns, contact, privacy, terms, and payment security.';
+  if (/Lazada|Shopee/i.test(platform)) return 'Check local seller center rules for image ratio, category restrictions, shipping SLA, and vouchers.';
+  if (/Facebook|Instagram/i.test(platform)) return 'Confirm commerce eligibility, product tagging rules, and local checkout/message flow.';
+  return 'Confirm current seller rules, fees, category restrictions, shipping SLA, and return policy before publishing.';
+}
+
+function getRiskNotes(category, name, features) {
+  const combined = `${category} ${name} ${features.join(' ')}`.toLowerCase();
+  const notes = [];
+  if (combined.includes('electric') || combined.includes('power') || combined.includes('charger') || combined.includes('usb')) {
+    notes.push('□ Electrical product: mention only verified safety standards, voltage, plug type, and wattage');
+  }
+  if (combined.includes('beauty') || combined.includes('skin') || combined.includes('health')) {
+    notes.push('□ Beauty/health product: avoid medical claims, before-after promises, or guaranteed results');
+  }
+  if (combined.includes('baby') || combined.includes('kids')) {
+    notes.push('□ Baby/kids product: be extra clear on age suitability, materials, and safety limitations');
+  }
+  return notes.length ? notes.join('\n') : '□ Product claims are specific, accurate, and easy to prove';
+}
+
+function copyMsg(btn) {
+  const text = btn.previousElementSibling.textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+// ── PROFIT CALCULATOR ──
+function calcProfit() {
+  const sell = parseFloat(document.getElementById('c-sell').value) || 0;
+  const product = parseFloat(document.getElementById('c-product').value) || 0;
+  const shipping = parseFloat(document.getElementById('c-shipping').value) || 0;
+  const commissionPct = parseFloat(document.getElementById('c-commission').value) || 0;
+  const paymentPct = parseFloat(document.getElementById('c-payment').value) || 0;
+  const packing = parseFloat(document.getElementById('c-packing').value) || 0;
+  const other = parseFloat(document.getElementById('c-other').value) || 0;
+
+  const commission = sell * commissionPct / 100;
+  const payment = sell * paymentPct / 100;
+  const totalCost = product + shipping + commission + payment + packing + other;
+  const profit = sell - totalCost;
+  const margin = sell > 0 ? (profit / sell * 100) : 0;
+
+  document.getElementById('r-sell').textContent = `฿${sell.toFixed(0)}`;
+  document.getElementById('r-product').textContent = `-฿${product.toFixed(0)}`;
+  document.getElementById('r-shipping').textContent = `-฿${shipping.toFixed(0)}`;
+  document.getElementById('r-commission').textContent = `-฿${commission.toFixed(0)}`;
+  document.getElementById('r-payment').textContent = `-฿${payment.toFixed(0)}`;
+  document.getElementById('r-packing').textContent = `-฿${packing.toFixed(0)}`;
+  document.getElementById('r-other').textContent = `-฿${other.toFixed(0)}`;
+
+  const profitEl = document.getElementById('r-profit');
+  const row = document.getElementById('profit-row');
+  profitEl.textContent = `฿${profit.toFixed(0)}`;
+  profitEl.style.color = profit >= 0 ? 'var(--green)' : 'var(--accent2)';
+
+  const clampedMargin = Math.max(0, Math.min(100, margin));
+  document.getElementById('margin-fill').style.width = clampedMargin + '%';
+  document.getElementById('margin-label').textContent = `Profit Margin: ${margin.toFixed(1)}%`;
+
+  const verdict = document.getElementById('profit-verdict');
+  if (sell === 0) { verdict.textContent = 'Enter your numbers above to see if this product is worth selling.'; verdict.style.borderColor = 'var(--border)'; return; }
+  if (margin >= 35) { verdict.innerHTML = `<strong style="color:var(--green)">✅ Great margin!</strong> ${margin.toFixed(1)}% margin is excellent. This product is worth selling. You make ฿${profit.toFixed(0)} per sale.`; verdict.style.borderColor = 'var(--green)'; }
+  else if (margin >= 20) { verdict.innerHTML = `<strong style="color:var(--yellow)">⚠️ Acceptable.</strong> ${margin.toFixed(1)}% margin is OK but try to find a cheaper supplier or raise the price slightly to get above 30%.`; verdict.style.borderColor = 'var(--yellow)'; }
+  else if (margin >= 0) { verdict.innerHTML = `<strong style="color:var(--accent2)">❌ Too low.</strong> ${margin.toFixed(1)}% margin is too thin. After returns/issues you'll lose money. Negotiate supplier price or raise your selling price.`; verdict.style.borderColor = 'var(--accent2)'; }
+  else { verdict.innerHTML = `<strong style="color:var(--accent2)">🚫 Losing money!</strong> You lose ฿${Math.abs(profit).toFixed(0)} per sale. Do not list this product at this price. Reduce costs or increase selling price significantly.`; verdict.style.borderColor = 'var(--accent2)'; }
+}
+
+function loadPowerStripExample() {
+  document.getElementById('c-sell').value = 890;
+  document.getElementById('c-product').value = 220;
+  document.getElementById('c-shipping').value = 0;
+  document.getElementById('c-commission').value = 5;
+  document.getElementById('c-payment').value = 2;
+  document.getElementById('c-packing').value = 20;
+  document.getElementById('c-other').value = 0;
+  calcProfit();
+}
+
+// ── CHECKLIST ──
+function toggleCheck(li) {
+  li.classList.toggle('done');
+}
+
+document.addEventListener('DOMContentLoaded', initMarketSetup);
+</script>
+</body>
+</html>
